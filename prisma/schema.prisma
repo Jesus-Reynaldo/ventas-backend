@@ -8,15 +8,15 @@ datasource db {
 }
 
 model cliente {
-  CI            Int       @id
+  CI            Int       @id @default(autoincrement())
   nombre        String?   @db.VarChar(100)
   telefono      String?   @db.VarChar(20)
-  fechaRegistro DateTime? @db.DateTime(0)
+  fechaRegistro DateTime? @default(now()) @db.DateTime(0)
   venta         venta[]
 }
 
 model detalleventa {
-  idDetalle      Int       @id
+  idDetalle      Int       @id @default(autoincrement())
   idVenta        Int?
   item           Int?
   cantidad       Int?
@@ -30,10 +30,10 @@ model detalleventa {
 }
 
 model inventario {
-  idInventario       Int       @id
+  idInventario       Int       @id @default(autoincrement())
   item               Int?
   cantidad           Int?
-  fechaActualizacion DateTime? @db.DateTime(0)
+  fechaActualizacion DateTime? @default(now()) @db.DateTime(0)
   producto           producto? @relation(fields: [item], references: [item], onDelete: NoAction, onUpdate: NoAction, map: "inventario_ibfk_1")
   recibo             recibo[]
   reporte            reporte[]
@@ -42,21 +42,21 @@ model inventario {
 }
 
 model metodopago {
-  idPago Int       @id
+  idPago Int       @id @default(autoincrement())
   tipo   String?   @db.VarChar(50)
   monto  Decimal?  @db.Decimal(10, 2)
-  fecha  DateTime? @db.DateTime(0)
+  fecha  DateTime? @default(now()) @db.DateTime(0)
   venta  venta[]
 }
 
 model producto {
-  item          Int            @id
+  item          Int            @id @default(autoincrement())
   nombre        String?        @db.VarChar(100)
   descripcion   String?        @db.Text
   precio        Decimal?       @db.Decimal(10, 2)
   categoria     String?        @db.VarChar(50)
   modelo        String?        @db.VarChar(50)
-  fechaRegistro DateTime?      @db.DateTime(0)
+  fechaRegistro DateTime?      @default(now()) @db.DateTime(0)
   imagen        String?        @db.VarChar(255)
   idUsuario     Int?
   detalleventa  detalleventa[]
@@ -68,8 +68,8 @@ model producto {
 }
 
 model recibo {
-  numeroRecibo Int         @id
-  fechaRecibo  DateTime?   @db.DateTime(0)
+  numeroRecibo Int         @id @default(autoincrement())
+  fechaRecibo  DateTime?   @default(now()) @db.DateTime(0)
   proveedor    String?     @db.VarChar(100)
   cantidad     Int?
   precio       Decimal?    @db.Decimal(10, 2)
@@ -88,9 +88,9 @@ model recibo {
 }
 
 model reporte {
-  idReporte       Int         @id
+  idReporte       Int         @id @default(autoincrement())
   tipoReporte     String?     @db.VarChar(50)
-  fechaGeneracion DateTime?   @db.DateTime(0)
+  fechaGeneracion DateTime?   @default(now()) @db.DateTime(0)
   rutaArchivo     String?     @db.VarChar(255)
   idInventario    Int?
   idVenta         Int?
@@ -101,11 +101,11 @@ model reporte {
 
   @@index([idInventario], map: "idInventario")
   @@index([idVenta], map: "idVenta")
-  @@index([idUsuario], map: "reporte_ibfk_3_idx")
+  @@index([idUsuario], map: "idUsuario")
 }
 
 model usuario {
-  id       Int        @id
+  id       Int        @id @default(autoincrement())
   nombre   String?    @db.VarChar(100)
   email    String?    @db.VarChar(100)
   password String?    @db.VarChar(100)
@@ -118,8 +118,8 @@ model usuario {
 }
 
 model venta {
-  idVenta           Int            @id
-  fecha             DateTime?      @db.DateTime(0)
+  idVenta           Int            @id @default(autoincrement())
+  fecha             DateTime?      @default(now()) @db.DateTime(0)
   totalVenta        Decimal?       @db.Decimal(10, 2)
   metodoPago        String?        @db.VarChar(50)
   cantidadProductos Int?
@@ -134,5 +134,5 @@ model venta {
 
   @@index([CI], map: "CI")
   @@index([idPago], map: "idPago")
-  @@index([idUsuario], map: "venta_ibfk_3_idx")
+  @@index([idUsuario], map: "idUsuario")
 }
