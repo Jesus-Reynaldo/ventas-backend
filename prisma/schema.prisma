@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model cliente {
+  CI            Int       @id
+  nombre        String?   @db.VarChar(100)
+  telefono      String?   @db.VarChar(20)
+  fechaRegistro DateTime? @db.DateTime(0)
+  venta         venta[]
+}
+
+model detalleventa {
+  idDetalle      Int       @id
+  idVenta        Int?
+  item           Int?
+  cantidad       Int?
+  precioUnitario Decimal?  @db.Decimal(10, 2)
+  subtotal       Decimal?  @db.Decimal(10, 2)
+  venta          venta?    @relation(fields: [idVenta], references: [idVenta], onDelete: NoAction, onUpdate: NoAction, map: "detalleventa_ibfk_1")
+  producto       producto? @relation(fields: [item], references: [item], onDelete: NoAction, onUpdate: NoAction, map: "detalleventa_ibfk_2")
+
+  @@index([idVenta], map: "idVenta")
+  @@index([item], map: "item")
+}
+
+model inventario {
+  idInventario       Int       @id
+  item               Int?
+  cantidad           Int?
+  fechaActualizacion DateTime? @db.DateTime(0)
+  producto           producto? @relation(fields: [item], references: [item], onDelete: NoAction, onUpdate: NoAction, map: "inventario_ibfk_1")
+  recibo             recibo[]
+  reporte            reporte[]
+
+  @@index([item], map: "item")
+}
+
+model metodopago {
+  idPago Int       @id
+  tipo   String?   @db.VarChar(50)
+  monto  Decimal?  @db.Decimal(10, 2)
+  fecha  DateTime? @db.DateTime(0)
+  venta  venta[]
+}
+
+model producto {
+  item          Int            @id
+  nombre        String?        @db.VarChar(100)
+  descripcion   String?        @db.Text
+  precio        Decimal?       @db.Decimal(10, 2)
+  categoria     String?        @db.VarChar(50)
+  modelo        String?        @db.VarChar(50)
+  fechaRegistro DateTime?      @db.DateTime(0)
+  imagen        String?        @db.VarChar(255)
+  idUsuario     Int?
+  detalleventa  detalleventa[]
+  inventario    inventario[]
+  usuario       usuario?       @relation(fields: [idUsuario], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "producto_ibfk_1")
+  recibo        recibo[]
+
+  @@index([idUsuario], map: "idUsuario")
+}
+
+model recibo {
+  numeroRecibo Int         @id
+  fechaRecibo  DateTime?   @db.DateTime(0)
+  proveedor    String?     @db.VarChar(100)
+  cantidad     Int?
+  precio       Decimal?    @db.Decimal(10, 2)
+  total        Decimal?    @db.Decimal(10, 2)
+  categoria    String?     @db.VarChar(50)
+  item         Int?
+  idInventario Int?
+  idUsuario    Int?
+  producto     producto?   @relation(fields: [item], references: [item], onDelete: NoAction, onUpdate: NoAction, map: "recibo_ibfk_1")
+  inventario   inventario? @relation(fields: [idInventario], references: [idInventario], onDelete: NoAction, onUpdate: NoAction, map: "recibo_ibfk_2")
+  usuario      usuario?    @relation(fields: [idUsuario], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "recibo_ibfk_3")
+
+  @@index([idInventario], map: "idInventario")
+  @@index([idUsuario], map: "idUsuario")
+  @@index([item], map: "item")
+}
+
+model reporte {
+  idReporte       Int         @id
+  tipoReporte     String?     @db.VarChar(50)
+  fechaGeneracion DateTime?   @db.DateTime(0)
+  rutaArchivo     String?     @db.VarChar(255)
+  idInventario    Int?
+  idVenta         Int?
+  idUsuario       Int?
+  inventario      inventario? @relation(fields: [idInventario], references: [idInventario], onDelete: NoAction, onUpdate: NoAction, map: "reporte_ibfk_1")
+  venta           venta?      @relation(fields: [idVenta], references: [idVenta], onDelete: NoAction, onUpdate: NoAction, map: "reporte_ibfk_2")
+  usuario         usuario?    @relation(fields: [idUsuario], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reporte_ibfk_3")
+
+  @@index([idInventario], map: "idInventario")
+  @@index([idVenta], map: "idVenta")
+  @@index([idUsuario], map: "reporte_ibfk_3_idx")
+}
+
+model usuario {
+  id       Int        @id
+  nombre   String?    @db.VarChar(100)
+  email    String?    @db.VarChar(100)
+  password String?    @db.VarChar(100)
+  telefono String?    @db.VarChar(20)
+  role     String?    @db.VarChar(50)
+  producto producto[]
+  recibo   recibo[]
+  reporte  reporte[]
+  venta    venta[]
+}
+
+model venta {
+  idVenta           Int            @id
+  fecha             DateTime?      @db.DateTime(0)
+  totalVenta        Decimal?       @db.Decimal(10, 2)
+  metodoPago        String?        @db.VarChar(50)
+  cantidadProductos Int?
+  idPago            Int?
+  CI                Int?
+  idUsuario         Int?
+  detalleventa      detalleventa[]
+  reporte           reporte[]
+  metodopago        metodopago?    @relation(fields: [idPago], references: [idPago], onDelete: NoAction, onUpdate: NoAction, map: "venta_ibfk_1")
+  cliente           cliente?       @relation(fields: [CI], references: [CI], onDelete: NoAction, onUpdate: NoAction, map: "venta_ibfk_2")
+  usuario           usuario?       @relation(fields: [idUsuario], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "venta_ibfk_3")
+
+  @@index([CI], map: "CI")
+  @@index([idPago], map: "idPago")
+  @@index([idUsuario], map: "venta_ibfk_3_idx")
+}
