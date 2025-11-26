@@ -6,11 +6,10 @@ import { ClientesModule } from './clientes/clientes.module';
 
 import { ProductoModule } from './productos/productos.module';
 import { DetalleVentaModule } from './detalle-venta/detalle-venta.module';
+import { InventarioModule } from './inventario/inventario.module';
 
 @Module({
-
-  imports: [PrismaModule, ClientesModule, DetalleVentaModule, ProductoModule, VentasModule],
-
+  imports: [PrismaModule, ClientesModule, DetalleVentaModule, ProductoModule, VentasModule, InventarioModule],
   controllers: [],
   providers: [],
 })
