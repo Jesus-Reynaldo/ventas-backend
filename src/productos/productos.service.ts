@@ -75,11 +75,18 @@ export class ProductoService {
     });
   }
 
-  // BUSCAR por talla
-  async findByTalla(talla: string): Promise<Producto[]> {
+  // BUSCAR por medida
+  async findByMedida(medida: string): Promise<Producto[]> {
     return this.prisma.productos.findMany({
-      where: { talla },
-      orderBy: { id_producto: 'desc' },
+      where: { medida },
     });
   }
+
+  // BUSCAR por categoría
+  async findByCategoria(categoria: string): Promise<Producto[]> {
+    return this.prisma.productos.findMany({
+      where: { categoria },
+    });
+  }
+
 }
