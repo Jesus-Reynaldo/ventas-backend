@@ -35,7 +35,7 @@ model inventario {
   id_producto          Int
   stock_actual         Int?      @default(0)
   stock_minimo         Int?      @default(5)
-  ultima_actualizacion DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  ultima_actualizacion DateTime? @default(now()) @updatedAt @db.Timestamp(0)
   productos            productos @relation(fields: [id_producto], references: [id_producto], onDelete: NoAction, onUpdate: NoAction, map: "inventario_ibfk_1")
 
   @@index([id_producto], map: "id_producto")

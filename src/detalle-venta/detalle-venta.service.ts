@@ -12,7 +12,18 @@ export class DetalleVentaService {
     
 
     async mostrarDetalleVenta() {
-        const detalleVenta = await this.prisma.detalle_venta.findMany();
+        const detalleVenta = await this.prisma.detalle_venta.findMany(
+            {
+                include: {
+                    productos: true,
+                    ventas: {
+                        include: {
+                            clientes: true
+                        }
+                    }
+                }
+            }
+        );
         return detalleVenta 
     }
 
