@@ -37,10 +37,16 @@ export class ProductoController {
     return this.productoService.findByMarca(marca);
   }
 
-  // GET Buscar por talla
-  @Get('talla/:talla')
-  findByTalla(@Param('talla') talla: string) {
-    return this.productoService.findByTalla(talla);
+  // GET - Buscar por medida
+  @Get('medida/:medida')
+  findByMedida(@Param('medida') medida: string) {
+    return this.productoService.findByMedida(medida);
+  }
+
+  // GET - Buscar por categoría
+  @Get('categoria/:categoria')
+  findByCategoria(@Param('categoria') categoria: string) {
+    return this.productoService.findByCategoria(categoria);
   }
 
   // GET - Obtener uno por ID

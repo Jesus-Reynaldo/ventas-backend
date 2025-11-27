@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model clientes {
@@ -34,7 +35,7 @@ model inventario {
   id_producto          Int
   stock_actual         Int?      @default(0)
   stock_minimo         Int?      @default(5)
-  ultima_actualizacion DateTime? @db.Date
+  ultima_actualizacion DateTime @default(now()) @updatedAt @db.Timestamp(0)
   productos            productos @relation(fields: [id_producto], references: [id_producto], onDelete: NoAction, onUpdate: NoAction, map: "inventario_ibfk_1")
 
   @@index([id_producto], map: "id_producto")
@@ -45,10 +46,12 @@ model productos {
   codigo_sku    String?         @unique(map: "codigo_sku") @db.VarChar(50)
   marca         String          @db.VarChar(50)
   modelo        String          @db.VarChar(100)
-  color         String?         @db.VarChar(30)
-  talla         String          @db.VarChar(10)
+  categoria     String?         @db.VarChar(50)
+  color         String?         @db.VarChar(40)
+  medida        String          @db.VarChar(20)
   precio_actual Decimal         @db.Decimal(10, 2)
   descripcion   String?         @db.Text
+  imagen        String?         @db.VarChar(255)
   detalle_venta detalle_venta[]
   inventario    inventario[]
 }
@@ -56,7 +59,7 @@ model productos {
 model ventas {
   id_venta      Int             @id @default(autoincrement())
   ci            Int?
-  fecha_venta   DateTime?       @default(now()) @db.DateTime(0)
+  fecha_venta   DateTime?       @default(now()) @db.Timestamp(0)
   total         Decimal?        @db.Decimal(10, 2)
   metodo_pago   String?         @db.VarChar(50)
   detalle_venta detalle_venta[]

@@ -22,12 +22,18 @@ export class InventarioService {
     });
   }
 
-  update(id: number, data: UpdateInventarioI) {
-    return this.prisma.inventario.update({
-      where: { id_inventario: id },
-      data,
-    });
-  }
+update(id: number, data: UpdateInventarioI) {
+  const cleanData = { ...data };
+  delete (cleanData as any).ultima_actualizacion; 
+
+  return this.prisma.inventario.update({
+    where: { id_inventario: id },
+    data: cleanData,
+    include: { productos: true },
+  });
+}
+
+
 
   remove(id: number) {
     return this.prisma.inventario.delete({ where: { id_inventario: id } });
