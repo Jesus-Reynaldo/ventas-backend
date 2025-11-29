@@ -1,18 +1,31 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res } from '@nestjs/common';
 import { DetalleVentaService } from './detalle-venta.service';
 import * as detalleVentaInterface from './interface/detalleVenta.interface';
+import { PdfService } from './pdf.service';
+import type { Response } from 'express';
 
 @Controller('detalle-venta')
 export class DetalleVentaController {
-  constructor(private readonly detalleVentaService: DetalleVentaService) {}
-  @Post()
-  crearDetalleVenta(@Body() nuevoDetalleVenta: detalleVentaInterface.DetalleVentaI) {
-    return this.detalleVentaService.crearDetalleVenta(nuevoDetalleVenta);
-  }
- 
+  constructor(private readonly detalleVentaService: DetalleVentaService, 
+    private readonly pdfService: PdfService) {}
+  
   @Get()
   async mostrarDetalleVenta() {
     return await this.detalleVentaService.mostrarDetalleVenta();
+  }
+
+  @Post('export/pdf')
+  async exportPDFFiltered(@Body() body: { data: any[] }, @Res() res: Response) {
+    const data = body.data && body.data.length > 0 
+      ? body.data 
+      : await this.detalleVentaService.mostrarDetalleVenta();
+    this.pdfService.generateDetalleVentaPDF(data, res);
+  }
+
+  @Get('export/pdf')
+  async exportPDF(@Res() res: Response) {
+    const data = await this.detalleVentaService.mostrarDetalleVenta();
+    this.pdfService.generateDetalleVentaPDF(data, res);
   }
 
   @Get(':id')
