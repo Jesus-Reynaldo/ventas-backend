@@ -1,4 +1,3 @@
-// src/inventario/inventario.controller.ts
 import { Controller, Get, Post, Body, Param, Delete, Put, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { InventarioService } from './inventario.service';
