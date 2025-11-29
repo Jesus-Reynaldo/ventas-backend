@@ -1,4 +1,3 @@
-// src/detalle-venta/pdf.service.ts
 import { Injectable } from '@nestjs/common';
 import { Response } from 'express';
 const PDFDocument = require('pdfkit');
@@ -7,7 +6,7 @@ const PDFDocument = require('pdfkit');
 export class PdfService {
   generateDetalleVentaPDF(data: any[], res: Response) {
     const doc = new PDFDocument({ 
-      size: 'A4',
+      size: 'LETTER',
       margin: 30,
       bufferPages: true
     });
@@ -16,7 +15,7 @@ export class PdfService {
     res.setHeader('Content-Disposition', 'attachment; filename=detalle-ventas.pdf');
     doc.pipe(res);
 
-    // === ENCABEZADO PROFESIONAL ===
+    // ENCABEZADO PROFESIONAL 
     // Fondo azul
     doc.fillColor('#0f172a')
        .rect(0, 0, 612, 90)
@@ -60,7 +59,7 @@ export class PdfService {
        .fillColor('#cbd5e1')
        .text(`Hora: ${hora}`, 400, 62, { align: 'right' });
 
-    // === ESTADÍSTICAS EN TARJETAS ===
+    // ESTADÍSTICAS EN TARJETAS 
     const totalVentas = data.length;
     const montoTotal = data.reduce((sum, item) => sum + parseFloat(item.subtotal || 0), 0);
     const cantidadTotal = data.reduce((sum, item) => sum + item.cantidad, 0);
@@ -73,7 +72,7 @@ export class PdfService {
 
     const stats = [
       { label: 'Registros', value: totalVentas.toString(), color: '#3b82f6', bgColor: '#eff6ff' },
-      { label: 'Cantidad Total de Productos ', value: cantidadTotal.toString(), color: '#10b981', bgColor: '#f0fdf4' },
+      { label: 'Cantidad Total de Productos', value: cantidadTotal.toString(), color: '#10b981', bgColor: '#f0fdf4' },
       { label: 'Monto Total', value: `Bs. ${montoTotal.toFixed(2)}`, color: '#f59e0b', bgColor: '#fffbeb' }
     ];
 
@@ -103,13 +102,12 @@ export class PdfService {
       statXPos += statBoxWidth + statSpacing;
     });
 
-    // === TABLA DE DATOS ===
+    // TABLA DE DATOS 
     const tableTop = statsY + statBoxHeight + 30;
     const colWidths = [130, 130, 70, 95, 110];
     const headers = ['Producto', 'Cliente', 'Cantidad', 'Precio Unit.', 'Subtotal'];
     const totalWidth = colWidths.reduce((a, b) => a + b);
     const rowHeight = 22;
-    const maxRowsPerPage = 16;
 
     // Encabezado tabla
     doc.fillColor('#1e293b')
@@ -132,15 +130,19 @@ export class PdfService {
     // Filas de datos
     let yPosition = tableTop + 35;
     let isAlternate = false;
-    let rowCount = 0;
+    let currentPageNumber = 0;
 
     data.forEach((item) => {
-      if (rowCount >= maxRowsPerPage) {
+      // Verificar si necesitamos nueva página ANTES de dibujar
+      if (yPosition + rowHeight > doc.page.height - 120) {
+        // Agregar pie de página a la página actual antes de cambiar
+        this.addFooter(doc, currentPageNumber + 1, 0);
+        
         // Nueva página
         doc.addPage();
+        currentPageNumber++;
         yPosition = 30;
         isAlternate = false;
-        rowCount = 0;
 
         // Repetir encabezado
         doc.fillColor('#1e293b')
@@ -226,9 +228,36 @@ export class PdfService {
 
       yPosition += rowHeight;
       isAlternate = !isAlternate;
-      rowCount++;
     });
 
+    // Agregar pie de página a todas las páginas con el total correcto
+    const totalPages = currentPageNumber + 1;
+    for (let i = 0; i <= currentPageNumber; i++) {
+      doc.switchToPage(i);
+      this.addFooter(doc, i + 1, totalPages);
+    }
+
     doc.end();
+  }
+
+  private addFooter(doc: any, pageNum: number, totalPages: number) {
+    const footerY = doc.page.height - 40;
+    
+    // Línea separadora
+    doc.strokeColor('#e2e8f0')
+       .lineWidth(1)
+       .moveTo(30, footerY - 10)
+       .lineTo(582, footerY - 10)
+       .stroke();
+    
+    doc.fontSize(8)
+       .fillColor('#6b7280')
+       .font('Helvetica')
+       .text(
+         totalPages > 0 ? `Página ${pageNum} de ${totalPages}` : '',
+         30,
+         footerY,
+         { align: 'center', width: 552 }
+       );
   }
 }
