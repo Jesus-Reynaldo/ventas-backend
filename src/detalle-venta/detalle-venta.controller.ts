@@ -45,7 +45,11 @@ export class DetalleVentaController {
     return await this.detalleVentaService.mostrarDetalleVentaPorClienteIdCompleto(Number(ci));
   }
 
-  
+  @Get("fecha/:fechaInicio/:fechaFin")
+  async mostrarDetalleVentaPorFecha(@Param('fechaInicio') fechaInicio: string, @Param('fechaFin') fechaFin: string) {
+    return await this.detalleVentaService.mostrarDetalleVentaPorFecha(new Date(fechaInicio), new Date(fechaFin));
+  }
+
   @Patch(':id')
   async actualizarDetalleVenta(@Param('id') id: string, @Body() detalleVenta: detalleVentaInterface.DetalleVentaI) {
     return await this.detalleVentaService.actualizarDetalleVenta(Number(id), detalleVenta);

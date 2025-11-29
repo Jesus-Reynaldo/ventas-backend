@@ -90,6 +90,29 @@ export class DetalleVentaService {
         return detalleVenta
     }
     
+    async mostrarDetalleVentaPorFecha(fechaInicio: Date, fechaFin: Date) {
+        const detalleVenta = await this.prisma.detalle_venta.findMany(
+            {
+                where: {
+                    ventas: {
+                        fecha_venta: {
+                            gte: fechaInicio,
+                            lte: fechaFin
+                        }
+                    }
+                },
+                include: {
+                    productos: true,
+                    ventas: {
+                        include: {
+                            clientes: true
+                        }
+                    }
+                }
+            }
+        )
+        return detalleVenta
+    }
 
     async actualizarDetalleVenta(id: number, detalleVenta: DetalleVentaI) {
         const detalleVentaActualizado = await this.prisma.detalle_venta.update({where: {id_detalle: id}, data: detalleVenta});
