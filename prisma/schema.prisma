@@ -67,3 +67,27 @@ model ventas {
 
   @@index([ci], map: "ci")
 }
+
+model usuarios {
+  id_usuario      Int             @id @default(autoincrement())
+  nombre_usuario  String          @unique(map: "nombre_usuario") @db.VarChar(50)
+  password_hash   String          @db.VarChar(255)
+  nombre_completo String          @db.VarChar(100)
+  email           String          @unique(map: "email") @db.VarChar(100)
+  telefono        String?         @db.VarChar(20)
+  rol             usuarios_rol    @default(vendedor)
+  estado          usuarios_estado @default(activo)
+  fecha_creacion  DateTime?       @default(now()) @db.Timestamp(0)
+  ultima_conexion DateTime?       @db.Timestamp(0)
+}
+
+enum usuarios_rol {
+  admin
+  vendedor
+}
+
+enum usuarios_estado {
+  activo
+  inactivo
+  suspendido
+}
